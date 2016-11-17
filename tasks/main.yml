@@ -3,21 +3,15 @@
 
 - name: Include distribution specific variables
   include_vars: "{{ ansible_distribution }}.yml"
-  tags: gerrit
 
 - include: CentOS.yml
   when: ansible_distribution == "CentOS"
-  tags: gerrit
 
 - include: Ubuntu.yml
   when: ansible_distribution == "Ubuntu"
-  tags: gerrit
 
 - include: postgresql.yml
   when: gerrit_database_type == "postgresql"
-  tags:
-    - gerrit
-    - postgresql
 
 - name: Create Gerrit installation directory
   file: >
@@ -26,7 +20,6 @@
     group=root
     mode=0755
     state=directory
-  tags: gerrit
 
 - name: Download Gerrit
   get_url: >
@@ -34,7 +27,6 @@
     dest=/opt/gerrit/gerrit-{{ gerrit_version }}.war
     sha256sum={{ gerrit_sha256sum }}
   when: not gerrit_download_maven
-  tags: gerrit
 
 - name: Download Gerrit from Maven Repo
   get_url: >
@@ -42,7 +34,6 @@
     dest=/opt/gerrit/gerrit-{{ gerrit_version }}.war
     sha256sum={{ gerrit_sha256sum }}
   when: gerrit_download_maven
-  tags: gerrit
 
 - name: Create Gerrit symlink
   file: >
@@ -51,14 +42,12 @@
     owner=root
     group=root
     state=link
-  tags: gerrit
 
 - name: Create Gerrit group
   group: >
     name={{ gerrit_group }}
     system=yes
     state=present
-  tags: gerrit
 
 - name: Create Gerrit user
   user: >
@@ -68,7 +57,6 @@
     group={{ gerrit_group }}
     system=yes
     state=present
-  tags: gerrit
 
 - name: Create Gerrit site directory
   file: >
@@ -77,7 +65,6 @@
     group={{ gerrit_group }}
     mode=0755
     state=directory
-  tags: gerrit
 
 - name: Create Gerrit etc directory
   file: >
@@ -86,7 +73,6 @@
     group={{ gerrit_group }}
     mode=0755
     state=directory
-  tags: gerrit
 
 - name: Create Gerrit configuration file
   template: >
@@ -96,7 +82,6 @@
     group={{ gerrit_group }}
     mode=0644
   notify: restart gerrit
-  tags: gerrit
 
 - name: Create Gerrit secure configuration file
   template: >
@@ -106,13 +91,11 @@
     group={{ gerrit_group }}
     mode=0600
   notify: restart gerrit
-  tags: gerrit
 
 - name: Set Initialization Options
   set_fact:
     gerrit_init_options: >
       {% for plugin in gerrit_install_plugins %} --install-plugin {{ plugin }} {% endfor %}
-  tags: gerrit
 
 - name: Create Gerrit tmp directory
   file: >
@@ -121,14 +104,12 @@
     group={{ gerrit_group }}
     mode=0755
     state=directory
-  tags: gerrit
 
 - name: Save Initialization Options
   copy: >
     content="{{ gerrit_init_options }}"
     dest={{ gerrit_site_dir }}/tmp/init_options
   register: init_options_log
-  tags: gerrit
 
 - name: Initialize Gerrit
   become: yes
@@ -142,7 +123,6 @@
     {{ gerrit_init_options }}
   register: initialization
   when: init_options_log.changed
-  tags: gerrit
 
 - name: Reindexing Gerrit
   become: yes
@@ -150,7 +130,6 @@
   become_method: sudo
   command: java -jar /opt/gerrit/gerrit.war reindex -d {{ gerrit_site_dir }}
   when: initialization.changed
-  tags: gerrit
 
 - name: Create Gerrit defaults file
   template: >
@@ -160,15 +139,12 @@
     group=root
     mode=0644
   notify: restart gerrit
-  tags: gerrit
 
 - name: Create Gerrit init file link
   file: >
     src={{ gerrit_site_dir }}/bin/gerrit.sh
     dest=/etc/init.d/gerrit
     state=link
-  tags: gerrit
 
 - name: Ensure Gerrit service is started and enabled on boot
   service: name={{ gerrit_service_name }} state=started enabled=yes
-  tags: gerrit
