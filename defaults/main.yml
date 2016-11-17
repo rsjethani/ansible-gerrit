@@ -3,7 +3,7 @@
 
 gerrit_download_server: https://gerrit-releases.storage.googleapis.com
 gerrit_download_maven: false
-gerrit_version: 2.11.5
+gerrit_version: 2.13
 gerrit_install_plugins: []
 
 gerrit_auth_type: 'OPENID'

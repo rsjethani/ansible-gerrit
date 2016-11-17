@@ -102,7 +102,7 @@
 
 - name: Save Initialization Options
   copy: >
-    content="{{ gerrit_init_options }}"
+    content={{ gerrit_init_options }}
     dest={{ gerrit_site_dir }}/tmp/init_options
   register: init_options_log
 
