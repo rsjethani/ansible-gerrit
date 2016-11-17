@@ -10,9 +10,6 @@
 - include: Ubuntu.yml
   when: ansible_distribution == "Ubuntu"
 
-- include: postgresql.yml
-  when: gerrit_database_type == "postgresql"
-
 - name: Create Gerrit installation directory
   file: >
     path=/opt/gerrit
